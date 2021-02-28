@@ -32,15 +32,15 @@ class PyTaskManager:
                 scheduled = self.dequeue()
 
                 if scheduled is not None:
+                    self.__task_queue_cv.release()
+                    
                     if scheduled[0] in self.__actions:
                         self.__actions[scheduled[0]](*scheduled[1])
-
-                    continue
-        
-            self.__task_queue_cv.release()
+            else:
+                self.__task_queue_cv.release()
             
-            if scheduled[0] in self.__actions:
-                self.__actions[scheduled[0]](*scheduled[1])
+                if scheduled[0] in self.__actions:
+                    self.__actions[scheduled[0]](*scheduled[1])
 
     def __recreate_thread(self, index: int):
         if index in self.__threads:
